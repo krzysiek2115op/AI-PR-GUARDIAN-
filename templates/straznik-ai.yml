@@ -1,0 +1,107 @@
+# Strażnik AI — dodatkowa bramka jakości obok strażników skryptowych i testów.
+#
+# WKLEIĆ DO: Pod-strona-Szkolenia/.github/workflows/straznik-ai.yml
+#
+# WYMAGA:
+#   1. self-hosted runnera zarejestrowanego w repozytorium
+#      (minuty GitHub Actions na planie Free są wyczerpane do 1 września 2026)
+#   2. sekretu ANTHROPIC_API_KEY albo CLAUDE_CODE_OAUTH_TOKEN
+#   3. Node 22+ na runnerze
+#
+# NAZWA CHECKU: "Straznik AI (Claude)" — widoczna na liście checków PR-a,
+# żeby od pierwszego spojrzenia było wiadomo, że to strażnik AI, a nie lint.
+
+name: Straznik AI (Claude)
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+
+concurrency:
+  group: straznik-ai-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  # ---------------------------------------------------------------------------
+  # Zakres — zero tokenów. Odsiewa PR-y treściowe zanim ruszy model.
+  # Bez tego kroku PR #22 wprowadziłby 37 230 linii Markdowna do kontekstu.
+  # ---------------------------------------------------------------------------
+  zakres:
+    if: '!github.event.pull_request.draft'
+    runs-on: self-hosted
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    outputs:
+      kod: ${{ steps.ustal.outputs.kod }}
+      powod: ${{ steps.ustal.outputs.powod }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Pobierz strażnika
+        uses: actions/checkout@v6
+        with:
+          repository: krzysiek2115op/AI-PR-GUARDIAN-
+          # Pinuj do taga po pierwszym wydaniu: ref: v0.1.0
+          path: .straznik-ai-plugin
+          fetch-depth: 1
+
+      - name: Ustal zakres
+        id: ustal
+        run: |
+          git fetch --no-tags --depth=1 origin "${{ github.event.pull_request.base.ref }}"
+          node .straznik-ai-plugin/scripts/zakres.mjs \
+            --baza "origin/${{ github.event.pull_request.base.ref }}" \
+            --head HEAD > /dev/null
+          echo "kod=$(node -p "require('./.straznik-ai/zakres.json').kod")" >> "$GITHUB_OUTPUT"
+          echo "powod=$(node -p "require('./.straznik-ai/zakres.json').pominieto ?? ''")" >> "$GITHUB_OUTPUT"
+
+      - name: Powód pominięcia
+        if: steps.ustal.outputs.kod != 'true'
+        run: echo "Strażnik AI pominięty — ${{ steps.ustal.outputs.powod }}"
+
+  # ---------------------------------------------------------------------------
+  # Przegląd — strażnik + krytyk (WYTYCZNE §N1: krytyk obowiązkowy).
+  # ---------------------------------------------------------------------------
+  przeglad:
+    needs: zakres
+    if: needs.zakres.outputs.kod == 'true'
+    runs-on: self-hosted
+    timeout-minutes: 20
+    permissions:
+      contents: read       # NIGDY write — strażnik czyta i raportuje, nie zmienia kodu
+      pull-requests: read
+      issues: read
+      id-token: write      # wymagane przez claude-code-action
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - uses: actions/checkout@v6
+        with:
+          repository: krzysiek2115op/AI-PR-GUARDIAN-
+          path: .straznik-ai-plugin
+          fetch-depth: 1
+
+      - uses: anthropics/claude-code-action@v1
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          prompt: "/ai-pr-guardian:przeglad --baza origin/${{ github.event.pull_request.base.ref }}"
+          claude_args: |
+            --plugin-dir .straznik-ai-plugin
+            --max-turns 30
+            --allowedTools "mcp__github_inline_comment__create_inline_comment"
+
+      - name: Bramka jakości
+        run: node .straznik-ai-plugin/scripts/brama.mjs
+
+      - name: Zachowaj wynik
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: straznik-ai-findings
+          path: .straznik-ai/
+          if-no-files-found: ignore

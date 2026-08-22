@@ -1,0 +1,93 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Kontrakt wyniku przeglądu AI",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["wersja", "zakres", "znaleziska", "podsumowanie"],
+  "properties": {
+    "wersja": { "const": "1" },
+    "zakres": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["baza", "head", "plikow", "linii", "straznicy"],
+      "properties": {
+        "baza":   { "type": "string", "description": "Gałąź bazowa PR-a. NIGDY main — main jest celowo nieaktualny." },
+        "head":   { "type": "string" },
+        "plikow": { "type": "integer", "minimum": 0 },
+        "linii":  { "type": "integer", "minimum": 0 },
+        "straznicy": { "type": "array", "items": { "type": "string" } },
+        "pominieto": {
+          "type": "string",
+          "description": "Powód pominięcia analizy, jeśli nastąpiło. Nigdy nie milczeć o pominięciu."
+        }
+      }
+    },
+    "znaleziska": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "waga", "kategoria", "lokalizacja", "problem",
+          "skutek", "dowod", "naprawa", "pewnosc", "straznik", "werdykt_krytyka"
+        ],
+        "properties": {
+          "waga":      { "enum": ["CRITICAL", "HIGH", "MEDIUM", "LOW", "INFO"] },
+          "kategoria": { "type": "string", "description": "np. regresja, domena, bezpieczenstwo" },
+          "lokalizacja": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["plik", "linia"],
+            "properties": {
+              "plik":  { "type": "string" },
+              "linia": { "type": "integer", "minimum": 1 }
+            }
+          },
+          "problem": { "type": "string", "description": "Jedno zdanie: co jest nie tak." },
+          "skutek":  { "type": "string", "description": "Co się stanie, gdy to wejdzie na produkcję." },
+          "dowod": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["cytat", "plik", "linia"],
+            "description": "Dosłowny cytat z repozytorium. Bez cytatu znalezisko jest odrzucane — nie degradowane, odrzucane.",
+            "properties": {
+              "cytat": { "type": "string", "minLength": 1 },
+              "plik":  { "type": "string" },
+              "linia": { "type": "integer", "minimum": 1 }
+            }
+          },
+          "naprawa": { "type": "string", "description": "Konkretna, wykonalna zmiana. Nie 'rozważyć poprawę'." },
+          "pewnosc": { "enum": ["wysoka", "srednia", "niska"] },
+          "straznik": { "type": "string" },
+          "blad_id": {
+            "type": "string",
+            "pattern": "^BLAD-[0-9]{3}$",
+            "description": "Powiązanie z rejestr/znane-bledy.json, gdy znalezisko to nawrót znanej klasy."
+          },
+          "werdykt_krytyka": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["utrzymane", "uzasadnienie"],
+            "description": "Wymagane przez WYTYCZNE §N1 — żadne znalezisko nie trafia do raportu bez oceny krytyka.",
+            "properties": {
+              "utrzymane":    { "type": "boolean" },
+              "uzasadnienie": { "type": "string", "minLength": 1 },
+              "korekta_wagi": { "enum": ["CRITICAL", "HIGH", "MEDIUM", "LOW", "INFO"] }
+            }
+          }
+        }
+      }
+    },
+    "podsumowanie": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["blokujace", "razem", "odrzucone_przez_krytyka"],
+      "properties": {
+        "blokujace":               { "type": "integer", "minimum": 0 },
+        "razem":                   { "type": "integer", "minimum": 0 },
+        "odrzucone_przez_krytyka": { "type": "integer", "minimum": 0 },
+        "nota":                    { "type": "string" }
+      }
+    }
+  }
+}

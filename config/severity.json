@@ -1,0 +1,29 @@
+{
+  "_uwaga": [
+    "Polityka jakości — mapowanie wagi znaleziska na działanie.",
+    "Konfiguracja, nie hardcoded logika. scripts/brama.mjs czyta wyłącznie ten plik."
+  ],
+
+  "polityka": {
+    "CRITICAL": "blokuj",
+    "HIGH": "blokuj",
+    "MEDIUM": "komentarz",
+    "LOW": "komentarz",
+    "INFO": "raport"
+  },
+
+  "_uwaga_pewnosc": [
+    "Znalezisko poniżej progu jest DEGRADOWANE do INFO i nigdy nie blokuje.",
+    "Ochrona przed fałszywymi alarmami: mniej komentarzy o wysokiej wartości",
+    "jest warte więcej niż dziesiątki błahych."
+  ],
+  "minimalna_pewnosc_blokady": "wysoka",
+
+  "max_znalezisk_w_raporcie": 8,
+
+  "_uwaga_awaria": [
+    "Zachowanie przy awarii samego strażnika (timeout, limit API, brak klucza).",
+    "przepusc = awaria narzędzia nie zatrzymuje pracy zespołu."
+  ],
+  "przy_awarii": "przepusc"
+}

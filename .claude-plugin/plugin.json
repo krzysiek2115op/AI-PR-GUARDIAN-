@@ -1,0 +1,11 @@
+{
+  "name": "ai-pr-guardian",
+  "description": "Strażnik AI dla Pull Requestów — dodatkowa bramka jakości obok strażników skryptowych i testów. Wykrywa regresje z rejestru znanych błędów.",
+  "version": "0.1.0",
+  "author": {
+    "name": "MatthewPlugins"
+  },
+  "homepage": "https://github.com/krzysiek2115op/AI-PR-GUARDIAN-",
+  "repository": "https://github.com/krzysiek2115op/AI-PR-GUARDIAN-",
+  "license": "MIT"
+}

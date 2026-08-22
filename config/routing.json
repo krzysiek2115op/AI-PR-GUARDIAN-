@@ -1,0 +1,61 @@
+{
+  "_uwaga": [
+    "Routing: zmienione pliki decydują, którzy strażnicy w ogóle ruszają.",
+    "Konfiguracja, nie kod. Zmiana tutaj nie wymaga zmian w skryptach ani agentach."
+  ],
+
+  "_uwaga_filtr_kodu": [
+    "KOPIA 1:1 z .github/workflows/ci.yml:54 w Pod-strona-Szkolenia.",
+    "Rozjazd z tamtym filtrem jest błędem konfiguracji: PR uznany przez CI za",
+    "treściowy trafiłby do modelu. To najdroższa możliwa pomyłka w tym systemie —",
+    "PR #22 wprowadziłby 37 230 linii Markdowna.",
+    "Przy każdej zmianie ci.yml:54 zaktualizować tutaj i odwrotnie."
+  ],
+  "filtr_kodu": "^(app/|components/|lib/|modules/|assets/|public/|goldeny/|tools/(smoke|seed)/|package(-lock)?\\.json|next\\.config\\.ts|tsconfig\\.json|postcss\\.config|eslint\\.config|docker-compose\\.yml|\\.github/workflows/)",
+
+  "_uwaga_nigdy": [
+    "Ścieżki nieoglądane nigdy, niezależnie od filtru kodu.",
+    "tresc-kursow/ i docs/ to Tryb B i C z audytu — model ich nie recenzuje."
+  ],
+  "nigdy": [
+    "^tresc-kursow/",
+    "^docs/",
+    "(^|/)\\.env",
+    "\\.pem$",
+    "\\.key$",
+    "(^|/)package-lock\\.json$"
+  ],
+
+  "_uwaga_limity": [
+    "Powyżej progu strażnik odmawia analizy i prosi o podział PR-a,",
+    "zamiast po cichu obciąć wejście. Kwartyl górny z audytu to ~20 plików /",
+    "~1000 linii, więc progi zostawiają zapas, ale ucinają ogon (#22, #53)."
+  ],
+  "limity": {
+    "max_linii_diffa": 4000,
+    "max_plikow": 60
+  },
+
+  "_uwaga_straznicy": [
+    "v1 = jeden strażnik. Dodanie kolejnego to wpis tutaj + plik w agents/.",
+    "Zero zmian w silniku."
+  ],
+  "straznicy": [
+    {
+      "nazwa": "straznik-regresji",
+      "agent": "straznik-regresji",
+      "gdy": "kod",
+      "opis": "Celuje w 4 klasy błędów z rejestru bez strażnika skryptowego: BLAD-002, BLAD-005, BLAD-007, BLAD-011. Pozostałe 9 klas pilnują skrypty w tools/straznicy/ — model ich nie dubluje.",
+      "wiedza": ["rejestr/znane-bledy.json"]
+    }
+  ],
+
+  "_uwaga_krytyk": [
+    "Krytyk jest obowiązkowy przy KAŻDYM strażniku (WYTYCZNE §N1).",
+    "Nie podlega routingowi — rusza zawsze, gdy padnie choć jedno znalezisko."
+  ],
+  "krytyk": {
+    "agent": "krytyk",
+    "wymagany": true
+  }
+}

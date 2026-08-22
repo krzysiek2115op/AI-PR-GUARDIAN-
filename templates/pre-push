@@ -1,0 +1,47 @@
+#!/usr/bin/env bash
+# Fragment do DOPISANIA do istniejącego Pod-strona-Szkolenia/.githooks/pre-push
+#
+# Daje to, czego nie da GitHub Actions: push faktycznie nie przechodzi,
+# a komunikat od razu mówi, że zatrzymał go strażnik AI — bez szukania
+# przyczyny w logach CI.
+#
+# Blokada jest client-side i omijalna przez --no-verify. To celowe:
+# strażnik AI ma być bramką, nie kajdanami. Ślad na PR-ze zostawia check
+# "Straznik AI (Claude)" z workflow.
+#
+# WYMAGA: claude CLI w PATH + ANTHROPIC_API_KEY (albo zalogowana subskrypcja).
+# Gdy któregoś brakuje — hook milczy i przepuszcza. Nie blokujemy pracy
+# z powodu braku narzędzia.
+
+STRAZNIK_PLUGIN="${STRAZNIK_PLUGIN:-$HOME/AI-PR-GUARDIAN-}"
+
+if [ "${POMIN_STRAZNIKA_AI:-}" = "1" ]; then
+  echo "pre-push: strażnik AI pominięty (POMIN_STRAZNIKA_AI=1)"
+elif ! command -v claude >/dev/null 2>&1; then
+  echo "pre-push: brak claude CLI — strażnik AI pominięty"
+elif [ ! -d "$STRAZNIK_PLUGIN" ]; then
+  echo "pre-push: brak $STRAZNIK_PLUGIN — strażnik AI pominięty"
+else
+  BAZA="$(git config --get branch."$(git rev-parse --abbrev-ref HEAD)".merge | sed 's|refs/heads/||')"
+  BAZA="${BAZA:-plugin-1-sklep-kursow}"
+
+  node "$STRAZNIK_PLUGIN/scripts/zakres.mjs" --baza "origin/$BAZA" --head HEAD >/dev/null 2>&1
+  KOD="$(node -p "require('./.straznik-ai/zakres.json').kod" 2>/dev/null || echo false)"
+
+  if [ "$KOD" = "true" ]; then
+    echo "pre-push: strażnik AI analizuje zmiany…"
+    claude -p "/ai-pr-guardian:przeglad --baza origin/$BAZA" \
+      --plugin-dir "$STRAZNIK_PLUGIN" \
+      --max-turns 30 >/dev/null 2>&1
+
+    # UWAGA: kod wyjścia sprawdzany BEZ potoku — `node skrypt | tail`
+    # maskuje status (lekcja z D5, powtórzona).
+    if ! node "$STRAZNIK_PLUGIN/scripts/brama.mjs"; then
+      echo ""
+      echo "PUSH ZATRZYMANY PRZEZ STRAŻNIKA AI."
+      echo "Szczegóły powyżej i w .straznik-ai/findings.json"
+      echo "Świadome pominięcie: POMIN_STRAZNIKA_AI=1 git push  albo  git push --no-verify"
+      exit 1
+    fi
+  fi
+fi
