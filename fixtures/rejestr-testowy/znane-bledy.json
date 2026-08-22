@@ -1,0 +1,24 @@
+{
+  "_uwaga": [
+    "RUSZTOWANIE TESTOWE. To NIE jest kopia rejestr/znane-bledy.json",
+    "z Pod-strona-Szkolenia — plik odtworzony z podsumowania audytu",
+    "z 2026-08-22, żeby dało się mierzyć strażnika bez dostępu do repozytorium",
+    "prywatnego. Opisy skrócone, pola pomocnicze pominięte.",
+    "Przy pomiarze na prawdziwym repozytorium używać oryginału."
+  ],
+  "bledy": [
+    { "id": "BLAD-001", "opis": "Mutacja <html> przed hydratacją bez suppressHydrationWarning.", "straznik": "straznik-hydratacji" },
+    { "id": "BLAD-002", "opis": "Testy niszczą wspólną bazę deweloperską zamiast działać na db1_kursy_test.", "straznik": null },
+    { "id": "BLAD-003", "opis": "transform na przodku łamie position:fixed potomków.", "straznik": "straznik-fixed" },
+    { "id": "BLAD-004", "opis": "Animacja fill=both zostawia trwały kontekst układania.", "straznik": "straznik-fixed" },
+    { "id": "BLAD-005", "opis": "Pole sterowane liczbą traktuje 0 jak brak wartości i kasuje wpis. Cena 0 groszy jest legalna (CHECK >= 0).", "straznik": null },
+    { "id": "BLAD-006", "opis": "Walidacja tylko po stronie odczytu — sekcja-widmo przechodzi zapis.", "straznik": "straznik-kreatora" },
+    { "id": "BLAD-007", "opis": "Build z katalogu roboczego wynosi na wydanie niezacommitowane zmiany lokalne.", "straznik": null },
+    { "id": "BLAD-008", "opis": "Artefakt narzędzia zapisu trafia do treści lekcji.", "straznik": "straznik-prozy" },
+    { "id": "BLAD-009", "opis": "Font bez preloadu i martwa korekta metryk zastępnika oparta na local(Arial).", "straznik": "straznik-fontow" },
+    { "id": "BLAD-010", "opis": "Weryfikacja porównuje jeden plik, ślepa na chunki.", "straznik": "straznik-goldenu-tresci" },
+    { "id": "BLAD-011", "opis": "Niewidzialny, ale malowany element zostaje kandydatem na LCP.", "straznik": null },
+    { "id": "BLAD-012", "opis": "Test omija komendę i sprawdza inny artefakt niż wydany.", "straznik": "straznik-scenariuszy" },
+    { "id": "BLAD-013", "opis": "Strażnik związany z nazwą metody zamiast z zachowaniem.", "straznik": "audyt-straznikow" }
+  ]
+}

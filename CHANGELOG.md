@@ -3,6 +3,61 @@
 Konwencja: SemVer przedprodukcyjny. `0.X.0` — większy krok, `0.X.Y` — poprawka
 w ramach etapu. Separator w nagłówku to em dash (U+2014).
 
+## [0.2.0] — 2026-08-22
+
+Narzędzia pomiaru i kontroli. Nadal zero wywołań modelu w testach.
+
+### Dodane
+
+- `scripts/zmierz.mjs` — pomiar strażnika na fixture'ach jedną komendą.
+  Buduje dla każdego fixture'a tymczasowe repozytorium git z rejestrem
+  znanych błędów, puszcza przegląd i zestawia wynik z oczekiwaniem.
+  Tryb `--sucho` sprawdza rusztowanie bez wołania modelu.
+- `fixtures/rejestr-testowy/znane-bledy.json` — 13 wpisów odtworzonych
+  z audytu, żeby dało się mierzyć strażnika bez dostępu do repozytorium
+  prywatnego. To rusztowanie testowe, nie kopia oryginału.
+- Nagłówek `// SCIEZKA:` w każdym fixturze — jawna ścieżka docelowa
+  zamiast zgadywania przez harness.
+- `scripts/wersja.mjs` — kontrola spójności wersji między `plugin.json`,
+  `CHANGELOG.md` i `README.md`, z wykryciem ASCII hyphen i en dash
+  podstawionych pod em dash.
+- `.github/workflows/ci.yml` — CI silnika. Repozytorium jest publiczne,
+  więc minuty są nielimitowane. Bez sekretów i bez wołania modelu.
+- `scripts/zmierz.test.mjs` (18 testów), `scripts/wersja.test.mjs` (6 testów).
+
+### Zmienione
+
+- `templates/straznik-ai.yml` obsługuje `anthropic_api_key`
+  i `claude_code_oauth_token` naraz. Nieustawiony sekret jest pustym
+  inputem i zostaje zignorowany, więc wybór wariantu nie wymaga
+  edycji pliku.
+
+### Dowody
+
+- `node --test scripts/*.test.mjs` — 44/44 zielone
+- `node scripts/wersja.mjs` — spójne
+- `node scripts/zmierz.mjs --sucho` — 8 fixture'ów, wszystkie przechodzą
+  filtr ścieżek kodu
+- kontrola negatywna kroku CI o agentach: podstawiony agent z `Write`
+  został wykryty
+- fixture z CSP, JSX i szablonem literalnym przetrwał czyszczenie
+  bez uszkodzenia treści
+
+### Naprawione
+
+- **Pomiar mierzyłby czytanie ze zrozumieniem, nie wykrywanie.** Pierwsza
+  wersja harnessu zdejmowała z fixture'a tylko nagłówki `FIXTURE`
+  i `SCIEZKA`, zostawiając komentarze wyjaśniające i znaczniki `// BŁĄD:`.
+  Strażnik dostawałby odpowiedź podaną wprost. Teraz leci każdy komentarz —
+  reguła celowo brutalna, bo przeciek jest gorszy niż utrata realizmu.
+
+### Znane ograniczenia
+
+- Strażnik nadal nie był uruchomiony na żadnym kodzie. `zmierz.mjs`
+  przetestowany wyłącznie w trybie `--sucho`; pełny przebieg wymaga
+  `claude` CLI z tokenem.
+- `templates/straznik-ai.yml` nie był uruchomiony na self-hosted runnerze.
+
 ## [0.1.0] — 2026-08-22
 
 Fundament strażnika AI: silnik, jeden strażnik, krytyk, bramka, fixture'y.

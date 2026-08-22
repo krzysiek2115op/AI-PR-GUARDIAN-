@@ -5,7 +5,7 @@ skryptowych, testów i smoke'ów — **nie ich zamiennik**.
 
 | | |
 |---|---|
-| **Wersja** | **0.1.0** |
+| **Wersja** | **0.2.0** |
 | Licencja | MIT |
 | Zależności | zero |
 | Repozytorium sprawdzane | `MatthewPlugins/Pod-strona-Szkolenia` |
@@ -96,13 +96,29 @@ Skrypt `brama.mjs` nie zawiera żadnej polityki — czyta wyłącznie ten plik.
 
 ## Jak testować
 
+Silnik — deterministycznie, bez wołania modelu:
+
 ```bash
-node --test scripts/brama.test.mjs
+node --test scripts/*.test.mjs   # 44 testy
+node scripts/wersja.mjs          # spójność wersji
+node scripts/zmierz.mjs --sucho  # rusztowanie pomiaru
 ```
 
-Testy samego strażnika — patrz `fixtures/README.md`. Kryterium:
-w `fixtures/prawdziwe/` znalezisko z właściwym `blad_id`, w `fixtures/falszywe/`
-zero znalezisk utrzymanych przez krytyka.
+Samego strażnika — wymaga `claude` CLI z tokenem:
+
+```bash
+node scripts/zmierz.mjs              # wszystkie fixture'y
+node scripts/zmierz.mjs --tylko 005  # jeden
+```
+
+Harness buduje dla każdego fixture'a tymczasowe repozytorium git z rejestrem
+znanych błędów, puszcza przegląd i zestawia wynik z oczekiwaniem. **Zdejmuje
+przy tym wszystkie komentarze** — inaczej mierzyłby czytanie ze zrozumieniem
+zamiast wykrywania.
+
+Kryterium: w `fixtures/prawdziwe/` znalezisko z właściwym `blad_id` i wagą
+co najmniej MEDIUM, w `fixtures/falszywe/` zero znalezisk utrzymanych
+przez krytyka.
 
 **Jedno trafienie w `falszywe/` jest gorsze niż jedno przeoczenie
 w `prawdziwe/`.** Przeoczenie modelu zwykle złapie coś innego. Fałszywy alarm

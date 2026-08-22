@@ -1,4 +1,5 @@
 // FIXTURE — oczekiwane: BLAD-005, waga HIGH, pewność wysoka
+// SCIEZKA: modules/m1-sklep/cennik.ts
 //
 // Cena jest w groszach, CHECK (price_grosze >= 0). Zero to wartość LEGALNA —
 // kurs za 0 zł jest poprawnym stanem, nie pustym formularzem.

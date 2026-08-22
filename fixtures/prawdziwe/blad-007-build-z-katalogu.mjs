@@ -1,4 +1,5 @@
 // FIXTURE — oczekiwane: BLAD-007, waga HIGH, pewność wysoka
+// SCIEZKA: tools/smoke/wydanie.mjs
 //
 // Artefakt wdrożeniowy musi powstawać z tego, co jest w commicie.
 // Ten skrypt kopiuje z katalogu roboczego, więc wynosi na produkcję

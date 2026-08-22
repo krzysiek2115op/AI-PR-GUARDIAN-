@@ -21,7 +21,8 @@ przez `--plugin-dir`.
 | `skills/przeglad/` | orkiestrator: ustala zakres, woła strażników, składa wynik |
 | `knowledge/` | metodyka przeglądu i schemat wyniku — wiedza o *sposobie pracy* |
 | `config/` | routing i polityka wag — konfiguracja, nie kod |
-| `scripts/` | `zakres.mjs`, `brama.mjs` — deterministyczne, zero tokenów |
+| `scripts/` | `zakres.mjs`, `brama.mjs`, `wersja.mjs` — deterministyczne, zero tokenów; `zmierz.mjs` — pomiar strażnika |
+| `.github/workflows/` | CI silnika; repozytorium publiczne, minuty nielimitowane |
 | `templates/` | workflow i hook do wklejenia w repozytorium sprawdzanym |
 | `fixtures/` | testy samego strażnika: trafienia i fałszywe alarmy |
 
@@ -50,7 +51,10 @@ nad tym repozytorium.
 ## Uruchamianie
 
 ```bash
-node --test scripts/brama.test.mjs        # testy bramki
+node --test scripts/*.test.mjs            # 44 testy, zero wywołań modelu
+node scripts/wersja.mjs                   # spójność plugin.json / CHANGELOG / README
+node scripts/zmierz.mjs --sucho           # rusztowanie pomiaru bez modelu
+node scripts/zmierz.mjs                   # pomiar na fixture'ach (wymaga tokenu)
 node scripts/zakres.mjs --baza <ref>      # zakres na bieżącym repo
 node scripts/brama.mjs                    # bramka na .straznik-ai/findings.json
 claude --plugin-dir . -p "/ai-pr-guardian:przeglad --baza <ref>"

@@ -1,4 +1,5 @@
 // FIXTURE — oczekiwane: BLAD-002, waga CRITICAL, pewność wysoka
+// SCIEZKA: modules/m1-sklep/katalog.test.ts
 //
 // Testy chodzą sekwencyjnie na osobnej bazie db1_kursy_test.
 // Ten test bierze połączenie deweloperskie i czyści tabele — kasuje pracę

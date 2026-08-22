@@ -1,4 +1,5 @@
 // FIXTURE — oczekiwane: BLAD-011, waga MEDIUM, pewność wysoka
+// SCIEZKA: components/kurs/Kurtyna.tsx
 //
 // Projekt broni CLS = 0 i 96-97 wydajności na mobile.
 // Element z opacity: 0 jest nadal malowany i może zostać wybrany

@@ -1,4 +1,5 @@
 // FIXTURE — oczekiwane: CISZA
+// SCIEZKA: components/kurs/Kurtyna.tsx
 //
 // Wygląda jak BLAD-011, ale element nie istnieje w drzewie, dopóki nie jest
 // potrzebny. Nic nie jest malowane, więc nic nie kandyduje na LCP.

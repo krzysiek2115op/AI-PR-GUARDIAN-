@@ -1,4 +1,5 @@
 // FIXTURE — oczekiwane: CISZA
+// SCIEZKA: lib/csp.ts
 //
 // 'unsafe-inline' w style-src to JEDYNE świadome osłabienie CSP w tym
 // projekcie, udokumentowane i przyjęte decyzją właściciela: React hoistuje

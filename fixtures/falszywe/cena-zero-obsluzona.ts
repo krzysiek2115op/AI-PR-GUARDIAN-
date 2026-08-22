@@ -1,4 +1,5 @@
 // FIXTURE — oczekiwane: CISZA
+// SCIEZKA: modules/m1-sklep/cennik.ts
 //
 // Wygląda jak BLAD-005, ale nim nie jest. ?? reaguje wyłącznie na null
 // i undefined, więc cena 0 groszy przechodzi nienaruszona.

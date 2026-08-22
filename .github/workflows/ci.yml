@@ -1,0 +1,88 @@
+# CI silnika strażnika. To repozytorium jest publiczne, więc minuty
+# GitHub Actions są nielimitowane — tu nie musimy oszczędzać.
+#
+# Nie woła modelu i nie potrzebuje żadnego sekretu. Sprawdza wyłącznie to,
+# co da się sprawdzić deterministycznie.
+
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  sprawdz:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Składnia skryptów
+        run: |
+          for p in scripts/*.mjs; do node --check "$p"; done
+
+      - name: Konfiguracja to poprawny JSON
+        run: |
+          for p in config/*.json knowledge/*.json .claude-plugin/*.json fixtures/rejestr-testowy/*.json; do
+            node -e "JSON.parse(require('fs').readFileSync('$p','utf8'))" || exit 1
+          done
+
+      - name: Spójność wersji
+        run: node scripts/wersja.mjs
+
+      - name: Testy
+        run: node --test scripts/*.test.mjs
+
+      - name: Rusztowanie pomiaru
+        run: node scripts/zmierz.mjs --sucho
+
+      - name: Walidacja pluginu
+        run: npx --yes @anthropic-ai/claude-code@latest plugin validate .
+
+      - name: Szablony
+        run: |
+          bash -n templates/pre-push
+          node -e "
+            const s = require('fs').readFileSync('templates/straznik-ai.yml','utf8');
+            const wymagane = [
+              'pull_request:',
+              'contents: read',
+              'mcp__github_inline_comment__create_inline_comment',
+              'runs-on: self-hosted',
+            ];
+            const brak = wymagane.filter(w => !s.includes(w));
+            if (brak.length) { console.error('szablon zgubił:', brak.join(', ')); process.exit(1); }
+            if (s.includes('pull_request_target')) { console.error('pull_request_target jest zakazany'); process.exit(1); }
+            if (s.includes('contents: write')) { console.error('contents: write jest zakazany'); process.exit(1); }
+            console.log('szablon workflow: w porządku');
+          "
+
+      - name: Agenci nie mają narzędzi zapisu
+        run: |
+          node -e "
+            const fs = require('fs');
+            let zle = [];
+            for (const p of fs.readdirSync('agents')) {
+              const s = fs.readFileSync('agents/'+p, 'utf8');
+              const m = s.match(/^tools:\s*(.+)$/m);
+              if (!m) { zle.push(p+': brak pola tools'); continue; }
+              for (const zakazane of ['Write','Edit','NotebookEdit','Task']) {
+                if (new RegExp('\\\\b'+zakazane+'\\\\b').test(m[1])) zle.push(p+': ma '+zakazane);
+              }
+              if (/\bBash\b(?!\()/.test(m[1])) zle.push(p+': ma ogólny Bash');
+            }
+            if (zle.length) { console.error(zle.join('\n')); process.exit(1); }
+            console.log('agenci: tylko narzędzia odczytu');
+          "

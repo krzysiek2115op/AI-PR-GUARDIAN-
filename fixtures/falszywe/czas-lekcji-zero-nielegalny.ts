@@ -1,4 +1,5 @@
 // FIXTURE — oczekiwane: CISZA
+// SCIEZKA: modules/m1-sklep/lekcje.ts
 //
 // Wzorzec !x na polu liczbowym, ale tutaj jest POPRAWNY.
 // course_lessons.duration_min ma CHECK (duration_min > 0) — zero jest
