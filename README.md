@@ -144,6 +144,16 @@ modelu nie złapie nic, za to nauczy autora ignorować komentarze.
 - to repozytorium jest publiczne i nie zawiera żadnych sekretów ani procedur
   obsługi poświadczeń — i ma takie zostać
 
+## Dokumentacja
+
+| Plik | Zawartość |
+|---|---|
+| `docs/STAN.md` | stan projektu, decyzje, punkt wznowienia po przerwie |
+| `docs/wdrozenie.md` | wdrożenie krok po kroku — token, pomiar, runner, §N1 |
+| `CLAUDE.md` | kontrakt dla pracy nad tym repozytorium |
+| `knowledge/metodyka-przegladu.md` | zasady obowiązujące strażników i krytyka |
+| `fixtures/README.md` | jak mierzyć strażnika |
+
 ## Status
 
 Fundament. Strażnik nie był jeszcze uruchomiony na prawdziwym Pull Requeście —

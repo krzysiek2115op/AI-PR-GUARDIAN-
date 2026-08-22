@@ -25,6 +25,7 @@ przez `--plugin-dir`.
 | `.github/workflows/` | CI silnika; repozytorium publiczne, minuty nielimitowane |
 | `templates/` | workflow i hook do wklejenia w repozytorium sprawdzanym |
 | `fixtures/` | testy samego strażnika: trafienia i fałszywe alarmy |
+| `docs/` | `STAN.md` — punkt wznowienia; `wdrozenie.md` — kroki po stronie właściciela |
 
 ## Zasady
 

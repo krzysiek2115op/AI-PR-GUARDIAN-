@@ -27,6 +27,8 @@ Narzędzia pomiaru i kontroli. Nadal zero wywołań modelu w testach.
 
 ### Zmienione
 
+- `docs/STAN.md` i `docs/wdrozenie.md` — dokumentacja przeniesiona do
+  repozytorium, żeby przetrwała wyczyszczenie kontekstu rozmowy
 - `templates/straznik-ai.yml` obsługuje `anthropic_api_key`
   i `claude_code_oauth_token` naraz. Nieustawiony sekret jest pustym
   inputem i zostaje zignorowany, więc wybór wariantu nie wymaga
@@ -81,6 +83,14 @@ Fundament strażnika AI: silnik, jeden strażnik, krytyk, bramka, fixture'y.
 - `templates/straznik-ai.yml` — workflow na self-hosted runnera
 - `templates/pre-push` — twarda blokada pusha z komunikatem wskazującym strażnika
 - `fixtures/` — 4 trafienia i 4 fałszywe alarmy
+
+### Decyzje właściciela (0.2.0)
+
+- **Uwierzytelnianie: `CLAUDE_CODE_OAUTH_TOKEN`, nie klucz API.** Zero ryzyka
+  finansowego w etapach kalibracji. Próg przełączenia na klucz API: gdy
+  strażnik po raz drugi zablokuje pracę w środku innego zadania.
+- **Kolejność planu zmieniona.** Pomiar precyzji nie wymaga już self-hosted
+  runnera, więc idzie przed nim: token → pomiar → kalibracja → runner → PR.
 
 ### Decyzje właściciela
 
