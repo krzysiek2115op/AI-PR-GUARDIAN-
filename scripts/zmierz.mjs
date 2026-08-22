@@ -88,6 +88,19 @@ export function ocen(fixture, raport) {
   };
 }
 
+// Dwa różne rozrzuty, celowo nazwane osobno.
+//
+// NIESTABILNY to awaria: ten sam fixture raz zalicza, raz nie — na takim
+// strażniku nie da się oprzeć bramki. Rozrzut oceny jest nieszkodliwy:
+// fixture zalicza za każdym razem, tylko waga wędruje w dopuszczalnym paśmie.
+// Zlanie obu w jedno słowo dawało wiersz „⚠ NIESTABILNY" obok licznika
+// „niestabilne: 0" — komunikat, który sam sobie przeczy.
+export function stabilnosc(oceny) {
+  if (new Set(oceny.map((o) => o.trafienie)).size > 1) return "niestabilny";
+  if (new Set(oceny.map((o) => o.powod)).size > 1) return "rozrzut";
+  return "stabilny";
+}
+
 export function zbierzFixtury(korzen = KORZEN) {
   const wynik = [];
   for (const [katalog, rodzaj] of [["prawdziwe", "prawdziwy"], ["falszywe", "falszywy"]]) {
@@ -309,8 +322,10 @@ function main() {
     // Strażnik trafiający dwa razy na trzy nie jest strażnikiem, na którym
     // da się oprzeć bramkę.
     const wszystkieOk = oceny.every((o) => o.trafienie);
-    const rozrzut = new Set(oceny.map((o) => o.powod)).size > 1;
-    console.log(`${wszystkieOk ? "✓" : "✗"} ${f.nazwa}${rozrzut ? "   ⚠ NIESTABILNY" : ""}`);
+    const znacznik = { niestabilny: "   ⚠ NIESTABILNY", rozrzut: "   ≈ rozrzut oceny", stabilny: "" }[
+      stabilnosc(oceny)
+    ];
+    console.log(`${wszystkieOk ? "✓" : "✗"} ${f.nazwa}${znacznik}`);
     for (const [i, o] of oceny.entries()) {
       console.log(powtorz === 1 ? `   ${o.powod}` : `   [${i + 1}] ${o.powod}`);
     }
@@ -323,7 +338,7 @@ function main() {
   const przeoczenia = wyniki.filter(
     (w) => w.f.rodzaj === "prawdziwy" && !w.oceny.every((o) => o.trafienie),
   ).length;
-  const niestabilne = wyniki.filter((w) => new Set(w.oceny.map((o) => o.trafienie)).size > 1).length;
+  const niestabilne = wyniki.filter((w) => stabilnosc(w.oceny) === "niestabilny").length;
 
   console.log(`\n${zaliczone.length}/${wyniki.length} zgodnych z oczekiwaniem` + (powtorz > 1 ? ` (× ${powtorz} przebiegi)` : ""));
   console.log(`przeoczenia: ${przeoczenia}   fałszywe alarmy: ${falszyweAlarmy}`);

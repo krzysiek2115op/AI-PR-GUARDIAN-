@@ -52,7 +52,7 @@ nad tym repozytorium.
 ## Uruchamianie
 
 ```bash
-node --test scripts/*.test.mjs            # 50 testów, zero wywołań modelu
+node --test scripts/*.test.mjs            # 54 testy, zero wywołań modelu
 node scripts/wersja.mjs                   # spójność plugin.json / CHANGELOG / README
 node scripts/zmierz.mjs --sucho           # rusztowanie pomiaru bez modelu
 node scripts/zmierz.mjs                   # pomiar na fixture'ach (wymaga tokenu)

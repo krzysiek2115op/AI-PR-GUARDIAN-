@@ -3,7 +3,7 @@
 
 import test from "node:test";
 import assert from "node:assert/strict";
-import { ocen, oczysc, zbierzFixtury, zbierzKontekst, kontekstDla } from "./zmierz.mjs";
+import { ocen, oczysc, zbierzFixtury, zbierzKontekst, kontekstDla, stabilnosc } from "./zmierz.mjs";
 
 const PRAWDZIWY = { nazwa: "blad-005-x.ts", rodzaj: "prawdziwy", oczekiwanyBlad: "BLAD-005" };
 const FALSZYWY = { nazwa: "cena-ok.ts", rodzaj: "falszywy", oczekiwanyBlad: null };
@@ -212,4 +212,36 @@ test("kontekst przechodzi czyszczenie bez śladu po nagłówkach", async () => {
       assert.equal(czysty.includes(slowo), false, `${k.nazwa}: przeciekło słowo ${slowo}`);
     }
   }
+});
+
+// --- stabilność między przebiegami ------------------------------------------
+
+test("komplet trafień o tym samym uzasadnieniu to stabilny", () => {
+  const oceny = [
+    { trafienie: true, powod: "wykryte jako HIGH" },
+    { trafienie: true, powod: "wykryte jako HIGH" },
+  ];
+  assert.equal(stabilnosc(oceny), "stabilny");
+});
+
+// Fixture zalicza się za każdym razem, waga wędruje w paśmie ponad MEDIUM.
+// To nie jest awaria i nie może wyglądać jak awaria.
+test("komplet trafień o różnej wadze to rozrzut, nie niestabilność", () => {
+  const oceny = [
+    { trafienie: true, powod: "wykryte jako HIGH" },
+    { trafienie: true, powod: "wykryte jako MEDIUM" },
+  ];
+  assert.equal(stabilnosc(oceny), "rozrzut");
+});
+
+test("raz zalicza, raz nie — to niestabilność", () => {
+  const oceny = [
+    { trafienie: true, powod: "wykryte jako HIGH" },
+    { trafienie: false, powod: "PRZEOCZENIE STRAŻNIKA: zero znalezisk, oczekiwano BLAD-011" },
+  ];
+  assert.equal(stabilnosc(oceny), "niestabilny");
+});
+
+test("jeden przebieg nigdy nie jest niestabilny", () => {
+  assert.equal(stabilnosc([{ trafienie: false, powod: "cokolwiek" }]), "stabilny");
 });

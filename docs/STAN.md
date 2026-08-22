@@ -1,6 +1,6 @@
 # Stan projektu — punkt wznowienia
 
-Ostatnia aktualizacja: 2026-08-22, wersja pluginu 0.4.0.
+Ostatnia aktualizacja: 2026-08-22, wersja pluginu 0.4.1.
 
 Ten plik jest punktem wejścia po wyczyszczeniu kontekstu rozmowy.
 Zawiera wyłącznie fakty ustalone i decyzje podjęte — bez hipotez.
@@ -66,8 +66,8 @@ migrację; wymienia się zawartość `agents/` i `knowledge/`.
 ## Co jest zbudowane i sprawdzone
 
 ```
-node --test scripts/*.test.mjs   →  50/50 zielone
-node scripts/wersja.mjs          →  spójne (0.4.0)
+node --test scripts/*.test.mjs   →  54/54 zielone
+node scripts/wersja.mjs          →  spójne (0.4.1)
 node scripts/zmierz.mjs          →  8/8, kod wyjścia 0
 claude plugin validate .         →  bez ostrzeżeń
 ```
@@ -179,7 +179,7 @@ Etap 1  audyt repozytorium          ✅
 Etap 2  architektura i decyzje      ✅
 Etap 3  decyzja właściciela         ✅
 Etap 4  fundament                   ✅  0.2.0, wypchnięte
-Etap 5  testy silnika               ✅  50/50
+Etap 5  testy silnika               ✅  54/54
 Etap 6  pomiar na fixture'ach       ✅  7/8, zero fałszywych alarmów
 Etap 7  naprawa harnessu            ✅  8/8, zero fałszywych alarmów
 Etap 8  self-hosted runner          ⏸  po stronie właściciela

@@ -3,6 +3,22 @@
 Konwencja: SemVer przedprodukcyjny. `0.X.0` — większy krok, `0.X.Y` — poprawka
 w ramach etapu. Separator w nagłówku to em dash (U+2014).
 
+## [0.4.1] — 2026-08-22
+
+### Naprawione
+
+- **Wynik `--powtorz` sam sobie przeczył.** Wiersz fixture'a dostawał znacznik
+  `⚠ NIESTABILNY`, gdy różniło się samo uzasadnienie — także wtedy, gdy fixture
+  zaliczał się w każdym przebiegu, a wędrowała tylko waga w dopuszczalnym
+  paśmie. Obok stało `niestabilne między przebiegami: 0`. Rozdzielone na dwa
+  pojęcia: `⚠ NIESTABILNY` (raz zalicza, raz nie — awaria) i `≈ rozrzut oceny`
+  (komplet trafień, różna waga — nieszkodliwe). Licznik liczy wyłącznie
+  pierwsze. Funkcja `stabilnosc()` wydzielona i przetestowana osobno.
+
+### Dowody
+
+- `node --test scripts/*.test.mjs` — 54/54 zielone
+
 ## [0.4.0] — 2026-08-22
 
 Naprawa rusztowania pomiarowego. Pełny zestaw fixture'ów zaliczony.
