@@ -36,9 +36,39 @@ Pierwsze uruchomienie strażnika na kodzie. Harness pomiarowy dopięty.
   i fallback nie może zadziałać poprawnie.
 - `node --test scripts/*.test.mjs` — 44/44 zielone
 
+### Pomiar na pełnym zestawie
+
+**7/8 zgodnych z oczekiwaniem. Zero fałszywych alarmów. Jedno przeoczenie.**
+
+| Fixture | Wynik |
+|---|---|
+| `blad-002-baza-testowa.test.ts` | wykryte jako HIGH |
+| `blad-005-cena-zero.ts` | wykryte jako HIGH |
+| `blad-007-build-z-katalogu.mjs` | wykryte jako HIGH |
+| `blad-011-niewidzialny-lcp.tsx` | **przeoczone** |
+| `cena-zero-obsluzona.ts` | cisza |
+| `csp-unsafe-inline-swiadomy.ts` | cisza |
+| `czas-lekcji-zero-nielegalny.ts` | cisza |
+| `warstwa-wyciete-renderem.tsx` | cisza |
+
+Wszystkie cztery fixture'y fałszywych alarmów przeszły w ciszy, łącznie
+z zastawionymi celowo: `unsafe-inline` w `style-src`, `!duration_min`
+przy `CHECK > 0` oraz `??` zamiast `||`.
+
 ### Znane ograniczenia
 
-- Pomiar na pozostałych siedmiu fixture'ach w toku; wynik dopisać tutaj.
+- **Przeoczenie BLAD-011 to wada harnessu, nie strażnika.** Powtórzony
+  przebieg pokazał, że strażnik znajduje klasę poprawnie, a wagę obniża
+  **krytyk** — uzasadniając, że komponent nie jest nigdzie importowany,
+  więc wpływ na LCP jest nierealizowalny. Krytyk działa zgodnie z krokiem 2
+  swojej procedury. Problem w tym, że repozytorium pomiarowe zawiera jeden
+  plik, więc **wszystko w nim jest martwym kodem z definicji** — systematycznie
+  karzemy znaleziska w komponentach za artefakt rusztowania.
+  Naprawa: fixture ma móc wnieść miejsce użycia, kładzione w commicie
+  bazowym, żeby diff pozostał minimalny.
+- Wynik bywa niestabilny między przebiegami: w pomiarze zbiorczym strażnik
+  nie zgłosił nic, w powtórzeniu zgłosił i krytyk obniżył do LOW.
+  Do zbadania razem z powyższym.
 - `templates/straznik-ai.yml` nadal nieuruchomiony na self-hosted runnerze.
 - `podsumowanie.blokujace` bywa liczone przez orkiestratora niezgodnie
   z polityką — bez wpływu na bramkę, bo `brama.mjs` liczy blokujące sama.

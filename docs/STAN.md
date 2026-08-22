@@ -84,10 +84,37 @@ claude plugin validate .         →  bez ostrzeżeń
 | Szablony do wklejenia | `templates/{straznik-ai.yml,pre-push}` |
 | Fixture'y | `fixtures/prawdziwe/` (4), `fixtures/falszywe/` (4) |
 
+## Pomiar — wynik z 2026-08-22
+
+**7/8. Zero fałszywych alarmów. Jedno przeoczenie: `BLAD-011`.**
+
+Wykryte poprawnie: BLAD-002, BLAD-005, BLAD-007 — wszystkie jako HIGH.
+Cisza na wszystkich czterech fixture'ach fałszywych alarmów, łącznie
+z zastawionymi celowo (`unsafe-inline`, `!duration_min` przy `CHECK > 0`,
+`??` zamiast `||`).
+
+### NASTĘPNE ZADANIE — naprawa harnessu, nie agenta
+
+Przeoczenie BLAD-011 **nie jest winą strażnika**. Powtórzony przebieg
+pokazał, że strażnik znajduje klasę, a wagę obniża krytyk, uzasadniając:
+„komponent nie jest nigdzie importowany ani montowany — martwy kod".
+
+Krytyk działa zgodnie ze swoją procedurą (krok 2: sprawdź ścieżkę wykonania).
+Wada jest w `scripts/zmierz.mjs`: repozytorium pomiarowe zawiera **jeden
+plik**, więc wszystko w nim jest martwym kodem z definicji. Systematycznie
+karzemy znaleziska w komponentach za artefakt rusztowania.
+
+Kierunek naprawy: fixture ma móc wnieść **miejsce użycia** — mały plik
+importujący go i montujący. Musi trafić do **commitu bazowego**, nie do
+diffu, żeby diff pozostał minimalny i realistyczny (PR zmieniający jeden
+komponent w aplikacji, która już go używa).
+
+Do zbadania przy okazji: wynik bywa niestabilny między przebiegami —
+w pomiarze zbiorczym strażnik nie zgłosił nic, w powtórzeniu zgłosił.
+
 ## Czego NIE udowodniono
 
-- **Strażnik nie widział jeszcze żadnego kodu.** Precyzja niezmierzona.
-- `zmierz.mjs` przetestowany wyłącznie w trybie `--sucho`.
+- Strażnik nie był uruchomiony na prawdziwym Pull Requeście.
 - `templates/straznik-ai.yml` nigdy nie chodził na self-hosted runnerze.
   To najbardziej prawdopodobny punkt awarii — `claude-code-action`
   w takim środowisku nie był weryfikowany.
@@ -104,9 +131,9 @@ Etap 2  architektura i decyzje      ✅
 Etap 3  decyzja właściciela         ✅
 Etap 4  fundament                   ✅  0.2.0, wypchnięte
 Etap 5  testy silnika               ✅  44/44
-Etap 6  pomiar na fixture'ach       ⏸  wymaga tokenu
-Etap 7  kalibracja agentów          ⏸
-Etap 8  self-hosted runner          ⏸
+Etap 6  pomiar na fixture'ach       ✅  7/8, zero fałszywych alarmów
+Etap 7  naprawa harnessu + kalibracja ⏸  patrz „NASTĘPNE ZADANIE"
+Etap 8  self-hosted runner          ⏸  po stronie właściciela
 Etap 9  testowy Pull Request        ⏸
 Etap 10 kolejni strażnicy           ⏸
 ```

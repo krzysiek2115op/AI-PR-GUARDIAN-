@@ -40,3 +40,15 @@ Wynik czytelny w `.straznik-ai/findings.json`.
 Jedno trafienie w `falszywe/` jest gorsze niż jedno przeoczenie w `prawdziwe/`.
 Projekt ma 25 strażników skryptowych i 75 testów, które wyłapią to, co model
 przeoczy. Nie mają nic, co wyłapie fałszywy alarm modelu.
+
+## Znana wada rusztowania
+
+Repozytorium pomiarowe zawiera jeden plik, więc **wszystko w nim jest
+martwym kodem**. Krytyk słusznie obniża wagę znalezisk w kodzie, do którego
+nic nie prowadzi — i tym samym systematycznie karze fixture'y komponentowe
+za artefakt rusztowania, nie za właściwość kodu.
+
+Objaw: `blad-011-niewidzialny-lcp.tsx` przeoczony w pomiarze z 2026-08-22,
+choć strażnik wykrył klasę poprawnie.
+
+Kierunek naprawy w `docs/STAN.md`, sekcja „NASTĘPNE ZADANIE".

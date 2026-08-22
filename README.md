@@ -156,9 +156,15 @@ modelu nie złapie nic, za to nauczy autora ignorować komentarze.
 
 ## Status
 
-Strażnik uruchomiony i potwierdzony na pierwszym fixturze (`BLAD-005`:
-wykryty jako HIGH, krytyk obniżył drugie znalezisko do MEDIUM z uzasadnieniem).
-Pomiar na pełnym zestawie ośmiu fixture'ów w toku.
+Zmierzony na pełnym zestawie fixture'ów (2026-08-22):
 
-Nadal nieuruchomiony na prawdziwym Pull Requeście ani na self-hosted runnerze.
-Kolejność: pomiar → kalibracja agentów → runner → testowy PR → drugi strażnik.
+**7/8 zgodnych z oczekiwaniem. Zero fałszywych alarmów. Jedno przeoczenie.**
+
+Trzy klasy wykryte poprawnie jako HIGH (`BLAD-002`, `BLAD-005`, `BLAD-007`),
+cisza na wszystkich czterech fixture'ach zastawionych na fałszywy alarm.
+Przeoczenie `BLAD-011` to wada rusztowania pomiarowego, nie strażnika —
+diagnoza i kierunek naprawy w `docs/STAN.md`.
+
+Nieuruchomiony jeszcze na prawdziwym Pull Requeście ani na self-hosted
+runnerze. Kolejność: naprawa harnessu → ponowny pomiar → runner → testowy PR
+→ drugi strażnik.
