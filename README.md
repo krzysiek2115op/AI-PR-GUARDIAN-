@@ -5,7 +5,7 @@ skryptowych, testów i smoke'ów — **nie ich zamiennik**.
 
 | | |
 |---|---|
-| **Wersja** | **0.3.0** |
+| **Wersja** | **0.4.0** |
 | Licencja | MIT |
 | Zależności | zero |
 | Repozytorium sprawdzane | `MatthewPlugins/Pod-strona-Szkolenia` |
@@ -99,7 +99,7 @@ Skrypt `brama.mjs` nie zawiera żadnej polityki — czyta wyłącznie ten plik.
 Silnik — deterministycznie, bez wołania modelu:
 
 ```bash
-node --test scripts/*.test.mjs   # 44 testy
+node --test scripts/*.test.mjs   # 50 testów
 node scripts/wersja.mjs          # spójność wersji
 node scripts/zmierz.mjs --sucho  # rusztowanie pomiaru
 ```

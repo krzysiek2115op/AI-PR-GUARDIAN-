@@ -24,7 +24,7 @@ przez `--plugin-dir`.
 | `scripts/` | `zakres.mjs`, `brama.mjs`, `wersja.mjs` — deterministyczne, zero tokenów; `zmierz.mjs` — pomiar strażnika |
 | `.github/workflows/` | CI silnika; repozytorium publiczne, minuty nielimitowane |
 | `templates/` | workflow i hook do wklejenia w repozytorium sprawdzanym |
-| `fixtures/` | testy samego strażnika: trafienia i fałszywe alarmy |
+| `fixtures/` | testy samego strażnika: trafienia, fałszywe alarmy i `kontekst/` — miejsca użycia kładzione w commicie bazowym |
 | `docs/` | `STAN.md` — punkt wznowienia; `wdrozenie.md` — kroki po stronie właściciela |
 
 ## Zasady
@@ -52,10 +52,11 @@ nad tym repozytorium.
 ## Uruchamianie
 
 ```bash
-node --test scripts/*.test.mjs            # 44 testy, zero wywołań modelu
+node --test scripts/*.test.mjs            # 50 testów, zero wywołań modelu
 node scripts/wersja.mjs                   # spójność plugin.json / CHANGELOG / README
 node scripts/zmierz.mjs --sucho           # rusztowanie pomiaru bez modelu
 node scripts/zmierz.mjs                   # pomiar na fixture'ach (wymaga tokenu)
+node scripts/zmierz.mjs --powtorz 3       # pomiar stabilności między przebiegami
 node scripts/zakres.mjs --baza <ref>      # zakres na bieżącym repo
 node scripts/brama.mjs                    # bramka na .straznik-ai/findings.json
 claude --plugin-dir . -p "/ai-pr-guardian:przeglad --baza <ref>"

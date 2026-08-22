@@ -285,7 +285,7 @@ Wymaga wyłącznie tokenu. **Nie wymaga runnera.**
 
     git clone https://github.com/krzysiek2115op/AI-PR-GUARDIAN- ~/AI-PR-GUARDIAN-
     cd ~/AI-PR-GUARDIAN-
-    node --test scripts/*.test.mjs      # kontrola: 44/44
+    node --test scripts/*.test.mjs      # kontrola: 50/50
     node scripts/zmierz.mjs --sucho     # kontrola: 8 fixture'ów
     node scripts/zmierz.mjs             # właściwy pomiar
 

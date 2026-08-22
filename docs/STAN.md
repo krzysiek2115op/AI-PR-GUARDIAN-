@@ -1,6 +1,6 @@
 # Stan projektu — punkt wznowienia
 
-Ostatnia aktualizacja: 2026-08-22, wersja pluginu 0.2.0.
+Ostatnia aktualizacja: 2026-08-22, wersja pluginu 0.4.0.
 
 Ten plik jest punktem wejścia po wyczyszczeniu kontekstu rozmowy.
 Zawiera wyłącznie fakty ustalone i decyzje podjęte — bez hipotez.
@@ -66,9 +66,9 @@ migrację; wymienia się zawartość `agents/` i `knowledge/`.
 ## Co jest zbudowane i sprawdzone
 
 ```
-node --test scripts/*.test.mjs   →  44/44 zielone
-node scripts/wersja.mjs          →  spójne (0.2.0)
-node scripts/zmierz.mjs --sucho  →  8 fixture'ów przechodzi filtr
+node --test scripts/*.test.mjs   →  50/50 zielone
+node scripts/wersja.mjs          →  spójne (0.4.0)
+node scripts/zmierz.mjs          →  8/8, kod wyjścia 0
 claude plugin validate .         →  bez ostrzeżeń
 ```
 
@@ -82,35 +82,84 @@ claude plugin validate .         →  bez ostrzeżeń
 | Routing i polityka | `config/routing.json`, `config/severity.json` |
 | Skrypty | `scripts/{zakres,brama,wersja,zmierz}.mjs` |
 | Szablony do wklejenia | `templates/{straznik-ai.yml,pre-push}` |
-| Fixture'y | `fixtures/prawdziwe/` (4), `fixtures/falszywe/` (4) |
+| Fixture'y | `fixtures/prawdziwe/` (4), `fixtures/falszywe/` (4), `fixtures/kontekst/` (1) |
 
-## Pomiar — wynik z 2026-08-22
+## Pomiar — wynik z 2026-08-22, po naprawie rusztowania
 
-**7/8. Zero fałszywych alarmów. Jedno przeoczenie: `BLAD-011`.**
+**8/8. Zero fałszywych alarmów. Zero przeoczeń.**
 
-Wykryte poprawnie: BLAD-002, BLAD-005, BLAD-007 — wszystkie jako HIGH.
-Cisza na wszystkich czterech fixture'ach fałszywych alarmów, łącznie
-z zastawionymi celowo (`unsafe-inline`, `!duration_min` przy `CHECK > 0`,
-`??` zamiast `||`).
+| Fixture | Wynik |
+|---|---|
+| `blad-002-baza-testowa.test.ts` | wykryte jako HIGH |
+| `blad-005-cena-zero.ts` | wykryte jako HIGH |
+| `blad-007-build-z-katalogu.mjs` | wykryte jako HIGH |
+| `blad-011-niewidzialny-lcp.tsx` | wykryte jako HIGH |
+| `cena-zero-obsluzona.ts` | cisza |
+| `csp-unsafe-inline-swiadomy.ts` | cisza |
+| `czas-lekcji-zero-nielegalny.ts` | cisza |
+| `warstwa-wyciete-renderem.tsx` | cisza |
 
-### NASTĘPNE ZADANIE — naprawa harnessu, nie agenta
+Cisza utrzymana na wszystkich czterech fixture'ach fałszywych alarmów, łącznie
+z zastawionymi celowo: `unsafe-inline` w `style-src`, `!duration_min` przy
+`CHECK > 0`, `??` zamiast `||`.
 
-Przeoczenie BLAD-011 **nie jest winą strażnika**. Powtórzony przebieg
-pokazał, że strażnik znajduje klasę, a wagę obniża krytyk, uzasadniając:
-„komponent nie jest nigdzie importowany ani montowany — martwy kod".
+### Co było zepsute i jak naprawione
 
-Krytyk działa zgodnie ze swoją procedurą (krok 2: sprawdź ścieżkę wykonania).
-Wada jest w `scripts/zmierz.mjs`: repozytorium pomiarowe zawiera **jeden
-plik**, więc wszystko w nim jest martwym kodem z definicji. Systematycznie
-karzemy znaleziska w komponentach za artefakt rusztowania.
+Przeoczenie `BLAD-011` w 0.3.0 **nie było winą strażnika**. Repozytorium
+pomiarowe zawierało jeden plik, więc wszystko w nim było martwym kodem
+z definicji. Krytyk sprawdza ścieżkę wykonania (krok 2 jego procedury)
+i słusznie obniżał wtedy wagę — dowód znaleziony w katalogu tymczasowym
+po przebiegu, uzasadnienie krytyka brzmiało: *„komponent nie jest nigdzie
+importowany ani montowany"*.
 
-Kierunek naprawy: fixture ma móc wnieść **miejsce użycia** — mały plik
-importujący go i montujący. Musi trafić do **commitu bazowego**, nie do
-diffu, żeby diff pozostał minimalny i realistyczny (PR zmieniający jeden
-komponent w aplikacji, która już go używa).
+Naprawa: fixture może wnieść **miejsce użycia** przez `fixtures/kontekst/`.
+Plik kontekstu trafia do commitu **bazowego**, więc nie ma go w diffie —
+`zakres.mjs` po naprawie nadal widzi jeden zmieniony plik, 16 linii.
 
-Do zbadania przy okazji: wynik bywa niestabilny między przebiegami —
-w pomiarze zbiorczym strażnik nie zgłosił nic, w powtórzeniu zgłosił.
+Dopasowanie idzie po **ścieżce docelowej**, nie po nazwie fixture'a. Para
+`blad-011-niewidzialny-lcp.tsx` i `warstwa-wyciete-renderem.tsx` celuje w ten
+sam `components/kurs/Kurtyna.tsx`, więc obie dostają ten sam kontekst. To nie
+jest wygoda, tylko warunek rzetelności: fixture fałszywy bez miejsca użycia ma
+łatwiej o ciszę, bo krytyk sam z siebie obniża wagę martwemu kodowi. Test
+w `scripts/zmierz.test.mjs` tego pilnuje.
+
+Wynik potwierdza, że naprawa podniosła wykrywalność, a nie próg krzykliwości:
+`warstwa-wyciete-renderem.tsx` z tym samym kontekstem **nadal milczy**.
+
+### Diagnoza niepowodzenia — druga naprawiona wada
+
+Do 0.3.0 cztery różne awarie dawały ten sam komunikat `PRZEOCZENIE: brak
+znalezisk`. Nie dało się na tej podstawie odpowiedzieć, czy kalibrować
+strażnika czy krytyka. Teraz:
+
+| Komunikat | Co kalibrować |
+|---|---|
+| `PRZEOCZENIE STRAŻNIKA` | strażnik nie zgłosił klasy w ogóle |
+| `ODRZUCONE PRZEZ KRYTYKA` | strażnik zgłosił, krytyk obalił — komunikat niesie jego uzasadnienie |
+| `ZA NISKA WAGA` | krytyk utrzymał, ale zszedł poniżej MEDIUM |
+| `POMYŁKA KLASY` | zgłoszono inny `BLAD-xxx` niż oczekiwany |
+
+### Agenci nietknięci
+
+`agents/straznik-regresji.md` i `agents/krytyk.md` **nie były zmieniane**.
+Kalibracja agenta pod wadę narzędzia pomiarowego byłaby błędem metodycznym:
+strojlibyśmy strażnika tak, żeby przebijał się przez artefakt rusztowania.
+
+### Niestabilność między przebiegami — co ustalono
+
+W 0.3.0 ten sam fixture dawał różne wyniki w kolejnych przebiegach: w pomiarze
+zbiorczym strażnik nie zgłosił `BLAD-011` wcale, w powtórzeniu zgłosił, a wagę
+obniżył krytyk. Oba objawy miały to samo źródło — martwy kod w repozytorium
+pomiarowym stawiał znalezisko na granicy, a przy granicy rozrzut modelu decyduje.
+Dowód zachował się w katalogu tymczasowym powtórzenia: krytyk utrzymał
+znalezisko z `korekta_wagi: LOW` i uzasadnieniem *„komponent nie jest nigdzie
+importowany ani montowany"*.
+
+Narzędzie do mierzenia tego rozrzutu jest dopiero teraz: `--powtorz N` puszcza
+każdy fixture N razy w osobnych repozytoriach i osobnych procesach, zalicza go
+tylko przy komplecie trafień i znakuje rozbieżne przebiegi jako `⚠ NIESTABILNY`.
+
+**Pomiar `--powtorz 3` na parze `Kurtyna` w toku — wynik do uzupełnienia.**
 
 ## Czego NIE udowodniono
 
@@ -130,9 +179,9 @@ Etap 1  audyt repozytorium          ✅
 Etap 2  architektura i decyzje      ✅
 Etap 3  decyzja właściciela         ✅
 Etap 4  fundament                   ✅  0.2.0, wypchnięte
-Etap 5  testy silnika               ✅  44/44
+Etap 5  testy silnika               ✅  50/50
 Etap 6  pomiar na fixture'ach       ✅  7/8, zero fałszywych alarmów
-Etap 7  naprawa harnessu + kalibracja ⏸  patrz „NASTĘPNE ZADANIE"
+Etap 7  naprawa harnessu            ✅  8/8, zero fałszywych alarmów
 Etap 8  self-hosted runner          ⏸  po stronie właściciela
 Etap 9  testowy Pull Request        ⏸
 Etap 10 kolejni strażnicy           ⏸

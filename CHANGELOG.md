@@ -3,6 +3,71 @@
 Konwencja: SemVer przedprodukcyjny. `0.X.0` — większy krok, `0.X.Y` — poprawka
 w ramach etapu. Separator w nagłówku to em dash (U+2014).
 
+## [0.4.0] — 2026-08-22
+
+Naprawa rusztowania pomiarowego. Pełny zestaw fixture'ów zaliczony.
+
+### Naprawione
+
+- **Repozytorium pomiarowe czyniło z każdego fixture'a martwy kod.** Zawierało
+  jeden plik, więc nic nikąd nie prowadziło. Krytyk sprawdza ścieżkę wykonania
+  (krok 2 jego procedury) i słusznie obniżał wtedy wagę — systematycznie
+  karaliśmy fixture'y komponentowe za artefakt rusztowania, nie za właściwość
+  kodu. Objaw: `BLAD-011` przeoczony w pomiarze z 0.3.0.
+- **Jeden komunikat na cztery różne awarie.** `PRZEOCZENIE: brak znalezisk`
+  padało zarówno wtedy, gdy strażnik nic nie zgłosił, jak i wtedy, gdy krytyk
+  obalił poprawne znalezisko. Nie dało się na tej podstawie odpowiedzieć, czy
+  kalibrować strażnika czy krytyka, bez grzebania w katalogu tymczasowym.
+
+### Dodane
+
+- `fixtures/kontekst/` — fixture może wnieść **miejsce użycia**. Plik kontekstu
+  ma nagłówki `// SCIEZKA:` i `// DLA:`, trafia do commitu **bazowego**, więc
+  nie ma go w diffie; `zakres.mjs` nadal widzi jeden zmieniony plik. Dopasowanie
+  idzie po ścieżce docelowej, nie po nazwie fixture'a: para prawdziwy plus
+  fałszywy alarm celująca w ten sam plik dostaje ten sam kontekst. Asymetria
+  byłaby wadą pomiaru — fixture fałszywy bez miejsca użycia ma łatwiej o ciszę.
+- `fixtures/kontekst/strona-kursu.tsx` — miejsce użycia dla obu fixture'ów
+  celujących w `components/kurs/Kurtyna.tsx`.
+- Rozróżnienie w ocenie: `PRZEOCZENIE STRAŻNIKA`, `ODRZUCONE PRZEZ KRYTYKA`
+  (z uzasadnieniem krytyka w komunikacie), `ZA NISKA WAGA`, `POMYŁKA KLASY`.
+- `node scripts/zmierz.mjs --powtorz N` — pomiar stabilności. Fixture zalicza
+  się tylko wtedy, gdy zalicza się w **każdym** przebiegu; rozbieżne przebiegi
+  dostają znacznik `⚠ NIESTABILNY`.
+- 6 testów rusztowania, w tym pilnujący symetrii kontekstu w parze
+  prawdziwy/fałszywy.
+
+### Zmienione
+
+- `przygotujRepo` zwraca `{ kat, kontekst }` zamiast samej ścieżki.
+- `agents/straznik-regresji.md` i `agents/krytyk.md` **bez zmian**. Kalibracja
+  agenta pod wadę narzędzia pomiarowego byłaby błędem metodycznym.
+
+### Pomiar na pełnym zestawie
+
+**8/8 zgodnych z oczekiwaniem. Zero fałszywych alarmów. Zero przeoczeń.**
+
+| Fixture | Wynik |
+|---|---|
+| `blad-002-baza-testowa.test.ts` | wykryte jako HIGH |
+| `blad-005-cena-zero.ts` | wykryte jako HIGH |
+| `blad-007-build-z-katalogu.mjs` | wykryte jako HIGH |
+| `blad-011-niewidzialny-lcp.tsx` | **wykryte jako HIGH** (było: przeoczone) |
+| `cena-zero-obsluzona.ts` | cisza |
+| `csp-unsafe-inline-swiadomy.ts` | cisza |
+| `czas-lekcji-zero-nielegalny.ts` | cisza |
+| `warstwa-wyciete-renderem.tsx` | cisza |
+
+Kluczowy wiersz to ostatni. `warstwa-wyciete-renderem.tsx` celuje w ten sam
+plik co `blad-011`, więc dostał ten sam kontekst — i nadal milczy. Naprawa
+podniosła wykrywalność, nie próg krzykliwości.
+
+### Dowody
+
+- `node --test scripts/*.test.mjs` — 50/50 zielone
+- `node scripts/zmierz.mjs` — 8/8, kod wyjścia 0
+- Diff fixture'a `blad-011` po naprawie: nadal 1 plik, 16 linii
+
 ## [0.3.0] — 2026-08-22
 
 Pierwsze uruchomienie strażnika na kodzie. Harness pomiarowy dopięty.
