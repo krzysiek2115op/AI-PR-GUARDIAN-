@@ -157,9 +157,49 @@ importowany ani montowany"*.
 
 Narzędzie do mierzenia tego rozrzutu jest dopiero teraz: `--powtorz N` puszcza
 każdy fixture N razy w osobnych repozytoriach i osobnych procesach, zalicza go
-tylko przy komplecie trafień i znakuje rozbieżne przebiegi jako `⚠ NIESTABILNY`.
+tylko przy komplecie trafień i rozdziela dwa rodzaje rozbieżności —
+`⚠ NIESTABILNY` (raz zalicza, raz nie) od `≈ rozrzut oceny` (komplet trafień,
+różna waga).
 
-**Pomiar `--powtorz 3` na parze `Kurtyna` w toku — wynik do uzupełnienia.**
+Wynik `--powtorz 3` na parze celującej w `components/kurs/Kurtyna.tsx`:
+
+| Fixture | Przebiegi | Uwaga |
+|---|---|---|
+| `blad-011-niewidzialny-lcp.tsx` | **3/3 wykryte** — HIGH, MEDIUM, HIGH | rozrzut wagi w paśmie ponad MEDIUM |
+| `warstwa-wyciete-renderem.tsx` | **3/3 cisza** — identyczne uzasadnienie | bez rozrzutu |
+
+Rozpoznanie klasy jest po naprawie **stabilne**: sześć przebiegów, sześć
+wyników zgodnych z oczekiwaniem, zero rozbieżności w tym, czy fixture zalicza.
+Wędruje wyłącznie waga i tylko w paśmie, które i tak przechodzi próg MEDIUM.
+
+To potwierdza diagnozę: rozrzut z 0.3.0 nie był chwiejnością strażnika, tylko
+skutkiem postawienia znaleziska na granicy przez artefakt rusztowania. Po
+usunięciu artefaktu granica przestała przebiegać przez ten fixture.
+
+Zastrzeżenie do liczb: sześć przebiegów to za mało, żeby mówić o częstości
+rzadkich awarii. Wystarczy, żeby stwierdzić, że objaw z 0.3.0 nie odtwarza się
+ani razu — i tyle z tego wolno wyciągnąć.
+
+## NASTĘPNE ZADANIE
+
+Po stronie silnika **nic nie blokuje**. Etapy 8 i 9 są po stronie właściciela
+i mają instrukcję w `docs/wdrozenie.md`:
+
+1. self-hosted runner na podmanie (Etap 8),
+2. testowy Pull Request na repozytorium sprawdzanym (Etap 9),
+3. wpis zmieniający wytyczną §N1 w repozytorium sprawdzanym.
+
+Etap 10 — **drugi strażnik** — jest odblokowany decyzją 2 („kolejni po jednym,
+po pomiarze na fixture'ach"), bo pomiar wyszedł 8/8. Czego natomiast **nie da
+się rozstrzygnąć w tej sesji**: czym ten drugi strażnik ma być. Wszystkie cztery
+klasy z rejestru bez ochrony automatycznej obsługuje już `straznik-regresji`,
+a wybór kolejnej niszy wymaga zajrzenia do repozytorium sprawdzanego, którego
+ta sesja nie odczyta (ograniczenie cross-tier opisane wyżej). Decyzja należy do
+właściciela albo do sesji przypiętej do `Pod-strona-Szkolenia`.
+
+Nie zgaduję tu kierunku — dołożenie strażnika „na wyczucie" byłoby dokładnie
+tym błędem, który właśnie naprawiliśmy w rusztowaniu: kalibracją pod wyobrażenie
+zamiast pod pomiar.
 
 ## Czego NIE udowodniono
 

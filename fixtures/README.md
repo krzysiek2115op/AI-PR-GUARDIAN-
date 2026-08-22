@@ -83,8 +83,14 @@ node scripts/zmierz.mjs --powtorz 3
 
 Każdy przebieg to świeże repozytorium i świeży proces. Fixture zalicza się
 tylko wtedy, gdy zalicza się w **każdym** przebiegu — strażnik trafiający dwa
-razy na trzy nie jest strażnikiem, na którym da się oprzeć bramkę. Rozbieżne
-przebiegi dostają znacznik `⚠ NIESTABILNY`.
+razy na trzy nie jest strażnikiem, na którym da się oprzeć bramkę.
+
+Dwie rozbieżności są rozdzielone, bo znaczą co innego:
+
+| Znacznik | Znaczenie |
+|---|---|
+| `⚠ NIESTABILNY` | raz zalicza, raz nie — awaria, licznik ją zlicza |
+| `≈ rozrzut oceny` | komplet trafień, różna waga w dopuszczalnym paśmie — nieszkodliwe |
 
 ## Diagnoza niepowodzenia
 

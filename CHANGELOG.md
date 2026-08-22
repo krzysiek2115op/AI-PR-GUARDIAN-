@@ -18,6 +18,12 @@ w ramach etapu. Separator w nagłówku to em dash (U+2014).
 ### Dowody
 
 - `node --test scripts/*.test.mjs` — 54/54 zielone
+- Pomiar stabilności `--powtorz 3` na parze celującej w
+  `components/kurs/Kurtyna.tsx`: `blad-011-niewidzialny-lcp.tsx` **3/3
+  wykryte** (HIGH, MEDIUM, HIGH — rozrzut wagi w paśmie ponad MEDIUM),
+  `warstwa-wyciete-renderem.tsx` **3/3 cisza**. Sześć przebiegów, zero
+  rozbieżności w tym, czy fixture zalicza. Objaw niestabilności z 0.3.0
+  nie odtworzył się ani razu.
 
 ## [0.4.0] — 2026-08-22
 
