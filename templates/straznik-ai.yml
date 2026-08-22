@@ -5,7 +5,10 @@
 # WYMAGA:
 #   1. self-hosted runnera zarejestrowanego w repozytorium
 #      (minuty GitHub Actions na planie Free są wyczerpane do 1 września 2026)
-#   2. sekretu ANTHROPIC_API_KEY albo CLAUDE_CODE_OAUTH_TOKEN
+#   2. JEDNEGO z dwóch sekretów — workflow obsługuje oba, ustaw ten,
+#      który wybrałeś, drugi zostaw nieustawiony:
+#        ANTHROPIC_API_KEY        — rozliczenie za tokeny, osobne od subskrypcji
+#        CLAUDE_CODE_OAUTH_TOKEN  — zużywa limit Twojej subskrypcji
 #   3. Node 22+ na runnerze
 #
 # NAZWA CHECKU: "Straznik AI (Claude)" — widoczna na liście checków PR-a,
@@ -88,7 +91,10 @@ jobs:
 
       - uses: anthropics/claude-code-action@v1
         with:
+          # Ustaw jeden z dwóch sekretów. Pusty input jest ignorowany,
+          # więc nieużywany wariant nie przeszkadza.
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           prompt: "/ai-pr-guardian:przeglad --baza origin/${{ github.event.pull_request.base.ref }}"
           claude_args: |
             --plugin-dir .straznik-ai-plugin
