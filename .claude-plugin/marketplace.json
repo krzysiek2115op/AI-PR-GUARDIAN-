@@ -1,5 +1,6 @@
 {
   "name": "ai-pr-guardian",
+  "description": "Strażnicy AI dla Pull Requestów — bramki jakości uzupełniające strażników skryptowych i testy tam, gdzie deterministyczna kontrola nie sięga.",
   "owner": {
     "name": "MatthewPlugins",
     "url": "https://github.com/krzysiek2115op"
@@ -8,7 +9,7 @@
     {
       "source": "./",
       "name": "ai-pr-guardian",
-      "description": "Strażnik AI dla Pull Requestów — bramka jakości wykrywająca regresje klas błędów bez ochrony skryptowej."
+      "description": "Strażnik AI dla Pull Requestów — bramka jakości wykrywająca nawroty klas błędów bez ochrony skryptowej."
     }
   ]
 }

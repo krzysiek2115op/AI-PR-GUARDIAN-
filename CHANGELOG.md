@@ -22,6 +22,7 @@ Fundament strażnika AI: silnik, jeden strażnik, krytyk, bramka, fixture'y.
 - `scripts/zakres.mjs` — ustalenie zakresu, zero tokenów
 - `scripts/brama.mjs` — bramka jakości, zero tokenów
 - `scripts/brama.test.mjs` — 11 testów bramki
+- `scripts/zakres.test.mjs` — 9 testów zakresu na tymczasowych repozytoriach git
 - `templates/straznik-ai.yml` — workflow na self-hosted runnera
 - `templates/pre-push` — twarda blokada pusha z komunikatem wskazującym strażnika
 - `fixtures/` — 4 trafienia i 4 fałszywe alarmy
@@ -43,9 +44,16 @@ Fundament strażnika AI: silnik, jeden strażnik, krytyk, bramka, fixture'y.
 ### Dowody
 
 - `node --test scripts/brama.test.mjs` — 11/11 zielone
-- `node --check` na obu skryptach i na teście — bez zastrzeżeń
+- `node --test scripts/zakres.test.mjs` — 9/9 zielone
+- `claude plugin validate .` — przeszła bez ostrzeżeń
+- `node --check` na obu skryptach i obu testach — bez zastrzeżeń
 - oba pliki konfiguracji parsują się jako poprawny JSON
 - `bash -n templates/pre-push` — bez zastrzeżeń
+
+Każdy test zakresu ma odpowiednik negatywny: obok „plik kodu uruchamia
+strażnika" stoi „sam Markdown treści nie uruchamia", obok „przekroczony limit
+zatrzymuje analizę" stoi „pusty diff nie uruchamia". Reguła projektu
+sprawdzanego: każdy nowy test sprawdzić testem negatywnym.
 
 ### Znane ograniczenia
 
