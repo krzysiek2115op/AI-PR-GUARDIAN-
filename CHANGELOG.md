@@ -3,6 +3,46 @@
 Konwencja: SemVer przedprodukcyjny. `0.X.0` — większy krok, `0.X.Y` — poprawka
 w ramach etapu. Separator w nagłówku to em dash (U+2014).
 
+## [0.3.0] — 2026-08-22
+
+Pierwsze uruchomienie strażnika na kodzie. Harness pomiarowy dopięty.
+
+### Dodane
+
+- `docs/STAN.md` — punkt wznowienia po przerwie: repozytoria, decyzje
+  właściciela, stan etapów, konwencje, czego nie udowodniono
+- `docs/wdrozenie.md` — wdrożenie krok po kroku po stronie właściciela
+
+### Naprawione
+
+- **`zmierz.mjs` nie dostawał zgody na zapis.** W trybie `-p` nie ma komu
+  potwierdzić zapisu `findings.json`, a pytanie nie ma się gdzie pojawić —
+  przegląd wykonywał się poprawnie i ginął. Dodane `--permission-mode
+  acceptEdits`. Ten sam błąd wystąpiłby na maszynie właściciela.
+- **Obejście dla środowisk z piaskownicą.** Gdy zagnieżdżony proces jest
+  odcięty od zapisu poza własnym katalogiem roboczym, wynik trafia do
+  scratchpada zamiast do `.straznik-ai/`. Harness szuka w obu miejscach.
+
+### Dowody
+
+- **Pierwszy realny przebieg strażnika**, fixture `blad-005-cena-zero.ts`:
+  wykryte jako HIGH, `blad_id` poprawne, wynik zgodny ze schematem.
+  Strażnik znalazł oba wystąpienia klasy — `||` w `przygotujDoZapisu`
+  i `!!` w `czyMaCene`.
+- Krytyk zadziałał zgodnie z projektem: próbował obalić oba znaleziska,
+  utrzymał je, ale drugie obniżył do MEDIUM z uzasadnieniem, że funkcja
+  nie ma wywołań w repozytorium. Zauważył przy tym, że `price_grosze: number`
+  jest nienullowalne, więc jedyną wartością fałszywą jest legalne zero
+  i fallback nie może zadziałać poprawnie.
+- `node --test scripts/*.test.mjs` — 44/44 zielone
+
+### Znane ograniczenia
+
+- Pomiar na pozostałych siedmiu fixture'ach w toku; wynik dopisać tutaj.
+- `templates/straznik-ai.yml` nadal nieuruchomiony na self-hosted runnerze.
+- `podsumowanie.blokujace` bywa liczone przez orkiestratora niezgodnie
+  z polityką — bez wpływu na bramkę, bo `brama.mjs` liczy blokujące sama.
+
 ## [0.2.0] — 2026-08-22
 
 Narzędzia pomiaru i kontroli. Nadal zero wywołań modelu w testach.

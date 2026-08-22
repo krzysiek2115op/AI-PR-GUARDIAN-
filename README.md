@@ -5,7 +5,7 @@ skryptowych, testów i smoke'ów — **nie ich zamiennik**.
 
 | | |
 |---|---|
-| **Wersja** | **0.2.0** |
+| **Wersja** | **0.3.0** |
 | Licencja | MIT |
 | Zależności | zero |
 | Repozytorium sprawdzane | `MatthewPlugins/Pod-strona-Szkolenia` |
@@ -156,6 +156,9 @@ modelu nie złapie nic, za to nauczy autora ignorować komentarze.
 
 ## Status
 
-Fundament. Strażnik nie był jeszcze uruchomiony na prawdziwym Pull Requeście —
-precyzja na fixture'ach niezmierzona. Kolejny krok: rejestracja self-hosted
-runnera, testowy PR, pomiar, dopiero potem drugi strażnik.
+Strażnik uruchomiony i potwierdzony na pierwszym fixturze (`BLAD-005`:
+wykryty jako HIGH, krytyk obniżył drugie znalezisko do MEDIUM z uzasadnieniem).
+Pomiar na pełnym zestawie ośmiu fixture'ów w toku.
+
+Nadal nieuruchomiony na prawdziwym Pull Requeście ani na self-hosted runnerze.
+Kolejność: pomiar → kalibracja agentów → runner → testowy PR → drugi strażnik.

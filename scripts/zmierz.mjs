@@ -135,6 +135,24 @@ function przygotujRepo(fixture) {
   return kat;
 }
 
+// Wynik normalnie ląduje w .straznik-ai/findings.json repozytorium sprawdzanego.
+// W środowiskach, gdzie zagnieżdżony proces jest odcięty od zapisu poza własnym
+// katalogiem roboczym (np. zdalne kontenery z piaskownicą), trafia do scratchpada.
+// Szukamy w obu miejscach, żeby pomiar dał się wykonać także tam.
+function wczytajWynik(kat) {
+  const wRepo = join(kat, ".straznik-ai/findings.json");
+  if (existsSync(wRepo)) return JSON.parse(readFileSync(wRepo, "utf8"));
+
+  const zmangowany = kat.replace(/\//g, "-");
+  const bazaScratchpada = join("/tmp/claude-0", zmangowany);
+  if (!existsSync(bazaScratchpada)) return null;
+  for (const sesja of readdirSync(bazaScratchpada)) {
+    const kandydat = join(bazaScratchpada, sesja, "scratchpad", "findings.json");
+    if (existsSync(kandydat)) return JSON.parse(readFileSync(kandydat, "utf8"));
+  }
+  return null;
+}
+
 function main() {
   const tylko = process.argv.indexOf("--tylko");
   const filtr = tylko !== -1 ? process.argv[tylko + 1] : null;
@@ -161,7 +179,14 @@ function main() {
     try {
       execFileSync(
         "claude",
-        ["-p", "/ai-pr-guardian:przeglad --baza baza", "--plugin-dir", KORZEN, "--max-turns", "30"],
+        [
+          "-p", "/ai-pr-guardian:przeglad --baza baza",
+          "--plugin-dir", KORZEN,
+          "--max-turns", "30",
+          // Bez tego w trybie -p zapis findings.json jest odrzucany:
+          // nie ma komu potwierdzić zgody, a pytanie nie ma gdzie się pojawić.
+          "--permission-mode", "acceptEdits",
+        ],
         { cwd: kat, stdio: "pipe", timeout: 15 * 60 * 1000 },
       );
     } catch (e) {
@@ -170,8 +195,7 @@ function main() {
       continue;
     }
 
-    const plik = join(kat, ".straznik-ai/findings.json");
-    const raport = existsSync(plik) ? JSON.parse(readFileSync(plik, "utf8")) : null;
+    const raport = wczytajWynik(kat);
     if (!raport) {
       console.log("BRAK WYNIKU");
       wyniki.push({ f, ocena: { trafienie: false, powod: "strażnik nie zapisał findings.json" } });
